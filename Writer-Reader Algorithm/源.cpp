@@ -112,24 +112,68 @@ void ReaderPriority(char *file)
 	readcount = 0;	//初始化 readcount
 	InitializeCriticalSection(&RP_Write);	//初始化临界区
 
-	ifstream inFile;
-	inFile.open(file, ios::_Nocreate);
-	if (inFile.rdstate() == ios::failbit)
-	{
-		printf("打开文件\"%s\"失败！请将\"%s\"放在程序目录下。\n", file, file);
-		return;
-	}
-
 	printf("读者优先：\n\n");
-	while (inFile)
-	{
-		//读入每一个读者、写者信息
-		inFile >> thread_info[n_thread].serial;
-		inFile >> thread_info[n_thread].entity;
-		inFile >> thread_info[n_thread].delay;
-		inFile >> thread_info[n_thread++].persist;
-		inFile.get();
-	}
+
+	thread_info[0].serial = 1;
+	thread_info[0].entity = 'W';
+	thread_info[0].delay = 2;
+	thread_info[0].persist = 3;
+	thread_info[1].serial = 2;
+	thread_info[1].entity = 'R';
+	thread_info[1].delay = 3;
+	thread_info[1].persist = 6;
+	thread_info[2].serial = 3;
+	thread_info[2].entity = 'R';
+	thread_info[2].delay = 4;
+	thread_info[2].persist = 2;
+	thread_info[3].serial = 4;
+	thread_info[3].entity = 'W';
+	thread_info[3].delay = 6;
+	thread_info[3].persist = 5;
+	thread_info[4].serial = 5;
+	thread_info[4].entity = 'R';
+	thread_info[4].delay = 7;
+	thread_info[4].persist = 2;
+	n_thread = 5;
+
+	//thread_info[0].serial = 1;
+	//thread_info[0].entity = 'R';
+	//thread_info[0].delay = 3;
+	//thread_info[0].persist = 5;
+	//thread_info[1].serial = 2;
+	//thread_info[1].entity = 'W';
+	//thread_info[1].delay = 4;
+	//thread_info[1].persist = 5;
+	//thread_info[2].serial = 3;
+	//thread_info[2].entity = 'R';
+	//thread_info[2].delay = 5;
+	//thread_info[2].persist = 2;
+	//thread_info[3].serial = 4;
+	//thread_info[3].entity = 'R';
+	//thread_info[3].delay = 6;
+	//thread_info[3].persist = 5;
+	//thread_info[4].serial = 5;
+	//thread_info[4].entity = 'W';
+	//thread_info[4].delay = 5.1;
+	//thread_info[4].persist = 3;
+	//n_thread = 5;
+	//ifstream inFile;
+	//inFile.open(file, ios::_Noreplace);
+	//if (inFile.rdstate() == ios::failbit)
+	//{
+	//	printf("打开文件\"%s\"失败！请将\"%s\"放在程序目录下。\n", file, file);
+	//	return;
+	//}
+	//printf("读者优先：\n\n");
+	//while (inFile)
+	//{
+	//	//读入每一个读者、写者信息
+	//	inFile >> thread_info[n_thread].serial;
+	//	inFile >> thread_info[n_thread].entity;
+	//	inFile >> thread_info[n_thread].delay;
+	//	inFile >> thread_info[n_thread++].persist;
+	//	//inFile.get();
+	//}
 
 	for (int i = 0; i < (int)(n_thread); i++)
 	{
@@ -152,7 +196,8 @@ void ReaderPriority(char *file)
 int main(int argc, char *argv[])
 {
 	ReaderPriority("input.txt");
-	printf("\n按任意键结束");
-	getch();
+	printf("\n按回车键结束");
+	getchar();
+
 	return 0;
 }
