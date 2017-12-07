@@ -149,7 +149,10 @@ void ReaderPriority(char *file)
 }
 
 
-int main()
+int main(int argc, char *argv[])
 {
+	ReaderPriority("input.txt");
+	printf("\n按任意键结束");
+	getch();
 	return 0;
 }
