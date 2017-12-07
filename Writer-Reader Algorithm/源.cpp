@@ -77,9 +77,76 @@ void RP_ReaderThread(void *p)
 //P: 写者信息
 void RP_WriterThread(void *p)
 {
-
+	DWORD m_delay;	//延迟时间
+	DWORD m_persist;	//写文件持续时间
+	int m_serial;	//线程序号
+	//从参数中获得信息
+	m_serial = ((ThreadInfo*)(p))->serial;
+	m_delay = (DWORD)(((ThreadInfo*)(p))->delay *INTE_PER_SEC);
+	m_persist = (DWORD)(((ThreadInfo*)(p))->persist *INTE_PER_SEC);
+	Sleep(m_delay);
+	printf("写进程 %d 发出请求 *** \n", m_serial);
+	//等待资源
+	EnterCriticalSection(&RP_Write);
+	//写文件
+	printf("写进程 %d 开始写文件。\n", m_serial);
+	Sleep(m_persist);
+	//退出进程
+	printf("写进程 %d 结束写文件。\n", m_serial);
+	//释放资源
+	LeaveCriticalSection(&RP_Write);
 }
 
+
+void ReaderPriority(char *file)
+{
+	DWORD n_thread = 0;	//线程数目
+	DWORD thread_ID;	//线程 ID
+	DWORD wait_for_all;	//等待所有线程结束
+	//互斥对象
+	HANDLE h_Mutex;
+	h_Mutex = CreateMutex(NULL, FALSE, "mutex_for_readcount");
+	//线程对象的数组
+	HANDLE h_Thread[MAX_THREAD_NUM];
+	ThreadInfo thread_info[MAX_THREAD_NUM];
+	readcount = 0;	//初始化 readcount
+	InitializeCriticalSection(&RP_Write);	//初始化临界区
+
+	ifstream inFile;
+	inFile.open(file, ios::_Nocreate);
+	if (inFile.rdstate() == ios::failbit)
+	{
+		printf("打开文件\"%s\"失败！请将\"%s\"放在程序目录下。\n", file, file);
+		return;
+	}
+
+	printf("读者优先：\n\n");
+	while (inFile)
+	{
+		//读入每一个读者、写者信息
+		inFile >> thread_info[n_thread].serial;
+		inFile >> thread_info[n_thread].entity;
+		inFile >> thread_info[n_thread].delay;
+		inFile >> thread_info[n_thread++].persist;
+		inFile.get();
+	}
+
+	for (int i = 0; i < (int)(n_thread); i++)
+	{
+		if (thread_info[i].entity == READER || thread_info[i].entity == 'r')
+		{
+			h_Thread[i] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)(RP_ReaderThread), &thread_info[i], 0, &thread_ID);	//创建读者进程
+		}
+		else
+		{
+			h_Thread[i] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)(RP_WriterThread), &thread_info[i], 0, &thread_ID);	//创建写者进程
+		}
+	}
+
+	//等待所有的线程结束
+	wait_for_all = WaitForMultipleObjects(n_thread, h_Thread, TRUE, -1);
+	printf("所有的读写线程结束操作。\n");
+}
 
 
 int main()
