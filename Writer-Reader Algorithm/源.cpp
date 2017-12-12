@@ -16,8 +16,8 @@ using namespace std;
 int readcount = 0;
 int writecount = 0;
 CRITICAL_SECTION RP_Write;	//ÁÙ½ç×ÊÔ´
-CRITICAL_SECTION cs_Write;
-CRITICAL_SECTION cs_Read;
+//CRITICAL_SECTION cs_Write;
+//CRITICAL_SECTION cs_Read;
 
 
 struct ThreadInfo
